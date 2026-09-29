@@ -1,0 +1,7 @@
+[project]
+name = "data-sense-ai"
+version = "1.0.0"
+requires-python = ">=3.9"
+
+[tool.vercel]
+entrypoint = "web_app:app"

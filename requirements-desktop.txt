@@ -1,0 +1,7 @@
+# Only for the PyQt6 desktop app (python run.py) - NOT for Vercel
+-r requirements.txt
+PyQt6>=6.5.0
+scikit-learn>=1.3.0
+scipy>=1.11.0
+matplotlib>=3.7.0
+seaborn>=0.12.0

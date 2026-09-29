@@ -1,0 +1,1288 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DataSense AI — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #18212f;
+            --muted: #637083;
+            --paper: #fffaf0;
+            --card: rgba(255, 255, 255, 0.88);
+            --line: rgba(24, 33, 47, 0.12);
+            --accent: #ea6a0a;
+            --accent-2: #0f8b8d;
+            --accent-3: #f4b942;
+            --shadow: 0 24px 70px rgba(38, 45, 60, 0.16);
+            --orange-600: #ea6a0a;
+            --orange-700: #c2410c;
+            --deep: #7c2d12;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: 'Inter', Georgia, sans-serif;
+            background:
+                radial-gradient(ellipse 70% 40% at 0% 0%, rgba(253,186,116,0.32) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 40% at 100% 0%, rgba(234,106,10,0.18) 0%, transparent 50%),
+                radial-gradient(circle at 90% 8%, rgba(15, 139, 141, 0.14), transparent 30rem),
+                linear-gradient(150deg, #fff8f0 0%, #fff3e6 30%, #f6efe1 65%, #e9f2ed 100%);
+        }
+
+        /* ── Top Navigation Bar ── */
+        .topnav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(234,106,10,0.12);
+            box-shadow: 0 2px 24px rgba(124,45,18,0.08);
+        }
+        .topnav-inner {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .nav-logo {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, var(--orange-700), var(--orange-600));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 3px 10px rgba(234,106,10,0.30);
+        }
+        .nav-brand-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--deep);
+            letter-spacing: -0.02em;
+        }
+        .nav-brand-text span {
+            color: var(--orange-600);
+        }
+
+        .nav-center {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .nav-link {
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 0.87rem;
+            font-weight: 500;
+            color: var(--muted);
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(234,106,10,0.09);
+            color: var(--orange-700);
+        }
+        .nav-link.active { font-weight: 700; }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-avatar-wrap {
+            position: relative;
+        }
+        .nav-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fed7aa, var(--orange-600));
+            border: 2px solid rgba(234,106,10,0.30);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--deep);
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+        .profile-dropdown {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            background: #fff;
+            border: 1px solid rgba(234,106,10,0.15);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(38,45,60,0.18);
+            min-width: 260px;
+            z-index: 200;
+            overflow: hidden;
+            display: none;
+        }
+        .profile-dropdown.open { display: block; }
+        .profile-dropdown-header {
+            padding: 18px 18px 14px;
+            background: linear-gradient(135deg, #fff8f0, #fff3e6);
+            border-bottom: 1px solid rgba(234,106,10,0.10);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .profile-dropdown-avatar {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fed7aa, var(--orange-600));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 700;
+            color: var(--deep);
+            flex-shrink: 0;
+        }
+        .profile-dropdown-info { min-width: 0; }
+        .profile-dropdown-name {
+            font-weight: 700;
+            font-size: 0.93rem;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .profile-dropdown-email {
+            font-size: 0.78rem;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+        .profile-dropdown-menu { padding: 8px; }
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 10px;
+            font-size: 0.87rem;
+            font-weight: 500;
+            color: var(--ink);
+            cursor: pointer;
+            transition: background 0.13s;
+            text-decoration: none;
+        }
+        .profile-menu-item:hover { background: rgba(234,106,10,0.08); color: var(--orange-700); }
+        .profile-menu-item.danger:hover { background: rgba(194,65,12,0.08); color: #c2410c; }
+        .profile-menu-divider { height: 1px; background: var(--line); margin: 6px 8px; }
+        .nav-logout {
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(234,106,10,0.20);
+            transition: all 0.15s;
+        }
+        .nav-logout:hover {
+            background: rgba(194,65,12,0.08);
+            color: var(--orange-700);
+            border-color: rgba(234,106,10,0.40);
+        }
+
+        /* ── History Panel ── */
+        .history-overlay {
+            position: fixed; inset: 0;
+            background: rgba(24,33,47,0.35);
+            backdrop-filter: blur(4px);
+            z-index: 300;
+            display: none;
+        }
+        .history-overlay.open { display: block; }
+        .history-panel {
+            position: fixed;
+            top: 0; right: 0; bottom: 0;
+            width: min(420px, 95vw);
+            background: #fffaf0;
+            border-left: 1px solid rgba(234,106,10,0.15);
+            box-shadow: -8px 0 48px rgba(38,45,60,0.18);
+            z-index: 301;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+        }
+        .history-panel.open { transform: translateX(0); }
+        .history-panel-header {
+            padding: 22px 22px 16px;
+            border-bottom: 1px solid rgba(234,106,10,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #fff8f0, #fff3e6);
+        }
+        .history-panel-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--deep);
+            margin: 0;
+        }
+        .history-close {
+            width: 32px; height: 32px;
+            border: 0; background: rgba(234,106,10,0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--orange-700);
+            transition: background 0.13s;
+        }
+        .history-close:hover { background: rgba(234,106,10,0.2); }
+        .history-panel-body { flex: 1; overflow-y: auto; padding: 16px; }
+        .history-empty {
+            text-align: center;
+            padding: 48px 16px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+        .history-empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .history-item {
+            background: white;
+            border: 1px solid rgba(234,106,10,0.12);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: box-shadow 0.13s, border-color 0.13s;
+        }
+        .history-item:hover { box-shadow: 0 4px 20px rgba(234,106,10,0.12); border-color: rgba(234,106,10,0.3); }
+        .history-item-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .history-item-instruction {
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--ink);
+            flex: 1;
+            line-height: 1.4;
+        }
+        .history-item-time {
+            font-size: 0.73rem;
+            color: var(--muted);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .history-item-response {
+            font-size: 0.82rem;
+            color: var(--muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .history-item-file {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.74rem;
+            color: var(--orange-700);
+            font-weight: 600;
+            background: rgba(234,106,10,0.08);
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+        .history-clear-btn {
+            width: 100%;
+            padding: 10px;
+            background: none;
+            border: 1px solid rgba(194,65,12,0.2);
+            border-radius: 10px;
+            color: #c2410c;
+            font-size: 0.83rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 4px;
+            box-shadow: none;
+            transition: background 0.13s;
+        }
+        .history-clear-btn:hover { background: rgba(194,65,12,0.07); }
+
+        /* ── Profile Edit Modal ── */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(24,33,47,0.4);
+            backdrop-filter: blur(5px);
+            z-index: 400;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 24px 80px rgba(38,45,60,0.25);
+            width: min(500px, calc(100vw - 32px));
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 24px 24px 18px;
+            background: linear-gradient(135deg, var(--orange-700), var(--orange-600));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0;
+        }
+        .modal-close {
+            width: 30px; height: 30px;
+            border: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-close:hover { background: rgba(255,255,255,0.35); }
+        .modal-body { padding: 24px; }
+        .modal-avatar-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--line);
+        }
+        .modal-avatar-big {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fed7aa, var(--orange-600));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; font-weight: 700;
+            color: var(--deep);
+            flex-shrink: 0;
+        }
+        .modal-avatar-info { flex: 1; }
+        .modal-field { margin-bottom: 16px; }
+        .modal-field label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .modal-field input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.13s;
+        }
+        .modal-field input:focus { outline: none; border-color: var(--orange-600); }
+        .modal-field input[readonly] {
+            background: #f9f9f9;
+            color: var(--muted);
+            cursor: default;
+        }
+        .modal-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding: 0 24px 24px;
+        }
+        .btn-secondary {
+            padding: 10px 20px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: none;
+            font-size: 0.87rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            width: auto;
+            margin: 0;
+            box-shadow: none;
+        }
+        .btn-primary {
+            padding: 10px 22px;
+            border: 0;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--orange-700), var(--orange-600));
+            color: #fff;
+            font-size: 0.87rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: auto;
+            margin: 0;
+            box-shadow: 0 4px 14px rgba(234,106,10,0.3);
+        }
+        .modal-save-msg {
+            font-size: 0.8rem;
+            color: #0f8b8d;
+            font-weight: 600;
+            display: none;
+            margin-right: auto;
+            align-self: center;
+        }
+
+        /* ── Page banner ── */
+        .page-banner {
+            background: linear-gradient(135deg, var(--orange-700) 0%, var(--orange-600) 55%, #f97316 100%);
+            margin-bottom: 0;
+            padding: 36px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-banner::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 280px; height: 280px;
+            border: 48px solid rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+        .page-banner::after {
+            content: '';
+            position: absolute; bottom: -60px; left: 60%;
+            width: 200px; height: 200px;
+            border: 36px solid rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+        .page-banner-inner {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            position: relative; z-index: 1;
+        }
+        .page-banner h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.0rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 8px;
+            letter-spacing: -0.03em;
+        }
+        .page-banner p {
+            color: rgba(255,255,255,0.75);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .shell {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 0 0 64px;
+            margin-top: -48px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+            gap: 28px;
+            align-items: stretch;
+        }
+
+        .hero-copy,
+        .upload-card,
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(16px);
+        }
+
+        .hero-copy {
+            position: relative;
+            overflow: hidden;
+            padding: 44px;
+            border-radius: 34px;
+        }
+
+        .hero-copy::after {
+            position: absolute;
+            right: -90px;
+            bottom: -120px;
+            width: 300px;
+            height: 300px;
+            content: "";
+            border: 48px solid rgba(224, 93, 47, 0.12);
+            border-radius: 50%;
+        }
+
+        .eyebrow {
+            margin: 0 0 14px;
+            color: var(--accent-2);
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            max-width: 760px;
+            margin: 0;
+            font-size: clamp(2.4rem, 5vw, 5.7rem);
+            line-height: 0.92;
+            letter-spacing: -0.07em;
+        }
+
+        .hero-copy p {
+            max-width: 650px;
+            margin: 24px 0 0;
+            color: var(--muted);
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .upload-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 30px;
+            border-radius: 30px;
+        }
+
+        .upload-box {
+            padding: 26px;
+            border: 2px dashed rgba(15, 139, 141, 0.38);
+            border-radius: 24px;
+            background: rgba(255, 250, 240, 0.62);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+            font-weight: 800;
+        }
+
+        input[type="file"],
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #fff;
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+        }
+
+        textarea {
+            min-height: 112px;
+            margin-top: 8px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 18px;
+            padding: 15px 18px;
+            border: 0;
+            border-radius: 999px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent), #b63e24);
+            box-shadow: 0 14px 32px rgba(224, 93, 47, 0.3);
+            cursor: pointer;
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .hint {
+            margin: 14px 0 0;
+            color: var(--muted);
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .chat-response {
+            margin-top: 22px;
+            border-left: 6px solid var(--accent);
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .chat-form {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 12px;
+            align-items: end;
+            margin-top: 22px;
+        }
+
+        .chat-form button {
+            width: auto;
+            min-width: 170px;
+            margin-top: 0;
+        }
+
+        .error {
+            margin-top: 22px;
+            padding: 16px 18px;
+            border: 1px solid rgba(224, 93, 47, 0.28);
+            border-radius: 18px;
+            background: rgba(224, 93, 47, 0.1);
+            color: #913018;
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+            font-weight: 700;
+        }
+
+        .results {
+            margin-top: 34px;
+        }
+
+        .section-title {
+            margin: 38px 0 16px;
+            font-size: clamp(1.7rem, 3vw, 2.6rem);
+            letter-spacing: -0.045em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            padding: 22px;
+            border-radius: 24px;
+        }
+
+        .metric {
+            color: var(--muted);
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .value {
+            margin-top: 10px;
+            font-size: clamp(2rem, 4vw, 3.3rem);
+            font-weight: 800;
+            letter-spacing: -0.07em;
+        }
+
+        .insights {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .insight {
+            border-left: 6px solid var(--accent-2);
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+            line-height: 1.55;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.9);
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+            font-size: 0.92rem;
+        }
+
+        th,
+        td {
+            padding: 13px 14px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            color: #fff;
+            background: #213547;
+            font-size: 0.78rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(244, 185, 66, 0.24);
+            color: #7a4c00;
+            font-size: 0.82rem;
+            font-weight: 800;
+        }
+
+        @media (max-width: 860px) {
+            .hero,
+            .insights {
+                grid-template-columns: 1fr;
+            }
+
+            .grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .hero-copy,
+            .upload-card {
+                padding: 26px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .shell {
+                width: min(100% - 20px, 1180px);
+                padding-top: 18px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            th,
+            td {
+                padding: 11px 12px;
+            }
+
+            .chat-form {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-form button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="topnav">
+        <div class="topnav-inner">
+            <a class="nav-brand" href="/">
+                <div class="nav-logo">📊</div>
+                <div class="nav-brand-text">DataSense <span>AI</span></div>
+            </a>
+            <div class="nav-center">
+                <a href="/" class="nav-link active">Dashboard</a>
+                <a href="#" class="nav-link" onclick="openHistory(); return false;">History</a>
+                <a href="#" class="nav-link">Reports</a>
+            </div>
+            <div class="nav-right">
+                <div class="nav-avatar-wrap">
+                    {% if session_user %}
+                    <div class="nav-avatar" id="profileBtn" onclick="toggleProfileDropdown()" title="Your profile">{{ session_user[0]|upper }}</div>
+                    {% else %}
+                    <div class="nav-avatar" id="profileBtn" onclick="toggleProfileDropdown()">U</div>
+                    {% endif %}
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-dropdown-header">
+                            <div class="profile-dropdown-avatar">
+                                {% if session_user %}{{ session_user[0]|upper }}{% else %}U{% endif %}
+                            </div>
+                            <div class="profile-dropdown-info">
+                                <div class="profile-dropdown-name" id="ddName">{{ session_user or 'User' }}</div>
+                                <div class="profile-dropdown-email" id="ddEmail">{{ session_email or '' }}</div>
+                            </div>
+                        </div>
+                        <div class="profile-dropdown-menu">
+                            <div class="profile-menu-item" onclick="openProfileModal()">
+                                <span>✏️</span> Edit Profile
+                            </div>
+                            <div class="profile-menu-item" onclick="openHistory(); closeProfileDropdown()">
+                                <span>🕐</span> Search History
+                            </div>
+                            <div class="profile-menu-divider"></div>
+                            <a href="/logout" class="profile-menu-item danger">
+                                <span>🚪</span> Sign out
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Banner -->
+    <div class="page-banner">
+        <div class="page-banner-inner">
+            <h2>Data Analysis Dashboard</h2>
+            <p>Upload your dataset and get instant AI-powered insights, statistics, and correlations.</p>
+        </div>
+    </div>
+
+    <main class="shell">
+        <section class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">DataSense AI — Intelligent Analyzer</p>
+                <h1>Upload data. Ask for just the results you need.</h1>
+                <p>
+                    Send a CSV or Excel file into the local Flask backend and get an immediate
+                    focused profile. Tell the chatbot what to show, like only NaN values,
+                    only zeros, top 5 rows, numeric stats, or correlations.
+                </p>
+            </div>
+
+            <div class="upload-card">
+                <form class="upload-box" action="/analyze" method="post" enctype="multipart/form-data">
+                    <label for="file">Choose CSV or Excel file</label>
+                    <input id="file" type="file" name="file" accept=".csv,.xlsx,.xls" required>
+
+                    <label for="instruction" style="margin-top: 18px;">Chatbot instruction</label>
+                    <textarea id="instruction" name="instruction" placeholder="Examples: show only NaN columns, show zeros only, show top 5 rows, show only correlations, show numeric stats"></textarea>
+
+                    <button type="submit">Analyze with instruction</button>
+                    <p class="hint">Leave instruction empty to see the full analysis. Supported files: .csv, .xlsx, .xls.</p>
+                </form>
+
+                {% if error %}
+                    <div class="error">{{ error }}</div>
+                {% endif %}
+            </div>
+        </section>
+
+        {% if analysis %}
+            <section class="results">
+                {% if analysis.chat %}
+                    <div class="card chat-response">
+                        <div class="metric">Chatbot instruction</div>
+                        <strong>{{ analysis.chat.instruction or "Full analysis" }}</strong>
+                        <p>{{ analysis.chat.response }}</p>
+                    </div>
+                {% endif %}
+
+                <form class="card chat-form" action="/chat" method="post">
+                    <div>
+                        <label for="chat_instruction">Ask another instruction without uploading again</label>
+                        <input id="chat_instruction" type="text" name="instruction" placeholder="Try: show only zeros, show top 5 rows, summary only">
+                    </div>
+                    <button type="submit">Ask chatbot</button>
+                </form>
+
+                {% if analysis.chat.visible_sections.summary %}
+                    <h2 class="section-title">Analysis Summary</h2>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="metric">Rows</div>
+                            <div class="value">{{ analysis.summary.rows }}</div>
+                        </div>
+                        <div class="card">
+                            <div class="metric">Columns</div>
+                            <div class="value">{{ analysis.summary.columns }}</div>
+                        </div>
+                        <div class="card">
+                            <div class="metric">NaN / blank cells</div>
+                            <div class="value">{{ analysis.summary.total_nan }}</div>
+                        </div>
+                        <div class="card">
+                            <div class="metric">Numeric zeros</div>
+                            <div class="value">{{ analysis.summary.total_numeric_zeros }}</div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if analysis.chat.visible_sections.insights %}
+                    <h2 class="section-title">Key Insights</h2>
+                    <div class="insights">
+                        {% for insight in analysis.insights %}
+                            <div class="card insight">{{ insight }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if analysis.chat.visible_sections.columns %}
+                    <h2 class="section-title">Column Quality</h2>
+                    <div class="table-wrap card">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>NaN Count</th>
+                                    <th>NaN %</th>
+                                    <th>Zero Count</th>
+                                    <th>Zero %</th>
+                                    <th>Zero-like</th>
+                                    <th>Unique</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for column in analysis.columns %}
+                                    <tr>
+                                        <td><strong>{{ column.name }}</strong></td>
+                                        <td><span class="pill">{{ column.dtype }}</span></td>
+                                        <td>{{ column.nan_count }}</td>
+                                        <td>{{ column.nan_percent }}%</td>
+                                        <td>{{ column.zero_count }}</td>
+                                        <td>{{ column.zero_percent }}%</td>
+                                        <td>{{ column.zero_like_count }}</td>
+                                        <td>{{ column.unique_count }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+
+                {% if analysis.chat.visible_sections.numeric_statistics and analysis.numeric_statistics %}
+                    <h2 class="section-title">Numeric Statistics</h2>
+                    <div class="table-wrap card">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Mean</th>
+                                    <th>Median</th>
+                                    <th>Std</th>
+                                    <th>Min</th>
+                                    <th>Max</th>
+                                    <th>Zeros</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for name, stat in analysis.numeric_statistics.items() %}
+                                    <tr>
+                                        <td><strong>{{ name }}</strong></td>
+                                        <td>{{ "%.4f"|format(stat.mean) }}</td>
+                                        <td>{{ "%.4f"|format(stat.median) }}</td>
+                                        <td>{{ "%.4f"|format(stat.std) }}</td>
+                                        <td>{{ "%.4f"|format(stat.min) }}</td>
+                                        <td>{{ "%.4f"|format(stat.max) }}</td>
+                                        <td>{{ stat.zeros }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+
+                {% if analysis.chat.visible_sections.strong_correlations and analysis.strong_correlations %}
+                    <h2 class="section-title">Strong Correlations</h2>
+                    <div class="table-wrap card">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Column A</th>
+                                    <th>Column B</th>
+                                    <th>Correlation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in analysis.strong_correlations %}
+                                    <tr>
+                                        <td>{{ item.column_a }}</td>
+                                        <td>{{ item.column_b }}</td>
+                                        <td>{{ item.correlation }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+
+                {% if analysis.chat.visible_sections.preview %}
+                    <h2 class="section-title">Preview</h2>
+                    <div class="table-wrap card">
+                        <table>
+                            <thead>
+                                <tr>
+                                    {% for column in analysis.columns %}
+                                        <th>{{ column.name }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in analysis.preview %}
+                                    <tr>
+                                        {% for column in analysis.columns %}
+                                            <td>{{ row.get(column.name) }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </section>
+        {% endif %}
+    </main>
+
+    <!-- History Side Panel -->
+    <div class="history-overlay" id="historyOverlay" onclick="closeHistory()"></div>
+    <div class="history-panel" id="historyPanel">
+        <div class="history-panel-header">
+            <h2 class="history-panel-title">🕐 Search History</h2>
+            <button class="history-close" onclick="closeHistory()">✕</button>
+        </div>
+        <div class="history-panel-body" id="historyBody">
+            <div class="history-empty" id="historyEmpty">
+                <div class="history-empty-icon">💬</div>
+                <div>No chatbot searches yet.</div>
+                <div style="margin-top:6px; font-size:0.82rem;">Upload a file and use the chatbot — your queries will appear here.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Edit Modal -->
+    <div class="modal-overlay" id="profileModal" onclick="handleModalClick(event)">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Profile</h2>
+                <button class="modal-close" onclick="closeProfileModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-avatar-section">
+                    <div class="modal-avatar-big" id="modalAvatar">
+                        {% if session_user %}{{ session_user[0]|upper }}{% else %}U{% endif %}
+                    </div>
+                    <div class="modal-avatar-info">
+                        <div style="font-weight:700; font-size:1rem; color:var(--ink);" id="modalFullName">{{ session_user or 'User' }}</div>
+                        <div style="font-size:0.82rem; color:var(--muted); margin-top:3px;" id="modalEmailDisplay">{{ session_email or '' }}</div>
+                        <div style="font-size:0.75rem; color:var(--accent-2); margin-top:5px; font-weight:600;">Member since 2024</div>
+                    </div>
+                </div>
+                <div class="modal-field-row">
+                    <div class="modal-field">
+                        <label>First Name</label>
+                        <input type="text" id="editFirstName" placeholder="First name">
+                    </div>
+                    <div class="modal-field">
+                        <label>Last Name</label>
+                        <input type="text" id="editLastName" placeholder="Last name">
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Email Address</label>
+                    <input type="email" id="editEmail" readonly placeholder="your@email.com">
+                </div>
+                <div class="modal-field">
+                    <label>Job Title</label>
+                    <input type="text" id="editJobTitle" placeholder="e.g. Data Analyst">
+                </div>
+                <div class="modal-field">
+                    <label>Organization</label>
+                    <input type="text" id="editOrg" placeholder="Your company or institution">
+                </div>
+                <div class="modal-field">
+                    <label>Location</label>
+                    <input type="text" id="editLocation" placeholder="e.g. New York, USA">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-save-msg" id="modalSaveMsg">✅ Profile saved!</div>
+                <button class="btn-secondary" onclick="closeProfileModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveProfile()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ── Profile data from session ──
+    const SESSION_NAME  = {{ (session_user or '')|tojson }};
+    const SESSION_EMAIL = {{ (session_email or '')|tojson }};
+
+    // ── Profile Dropdown ──
+    function toggleProfileDropdown() {
+        document.getElementById('profileDropdown').classList.toggle('open');
+    }
+    function closeProfileDropdown() {
+        document.getElementById('profileDropdown').classList.remove('open');
+    }
+    document.addEventListener('click', function(e) {
+        const wrap = document.querySelector('.nav-avatar-wrap');
+        if (wrap && !wrap.contains(e.target)) closeProfileDropdown();
+    });
+
+    // ── History Panel ──
+    function openHistory() {
+        document.getElementById('historyOverlay').classList.add('open');
+        document.getElementById('historyPanel').classList.add('open');
+        renderHistory();
+    }
+    function closeHistory() {
+        document.getElementById('historyOverlay').classList.remove('open');
+        document.getElementById('historyPanel').classList.remove('open');
+    }
+
+    function getHistory() {
+        try { return JSON.parse(localStorage.getItem('ds_chat_history') || '[]'); } catch(e) { return []; }
+    }
+    function saveHistory(arr) {
+        localStorage.setItem('ds_chat_history', JSON.stringify(arr.slice(0, 50)));
+    }
+
+    function renderHistory() {
+        const list = getHistory();
+        const body = document.getElementById('historyBody');
+        const empty = document.getElementById('historyEmpty');
+        if (list.length === 0) {
+            empty.style.display = 'block';
+            // Remove any previous items
+            body.querySelectorAll('.history-item, .history-clear-btn').forEach(el => el.remove());
+            return;
+        }
+        empty.style.display = 'none';
+        body.querySelectorAll('.history-item, .history-clear-btn').forEach(el => el.remove());
+        list.forEach(function(item, idx) {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML =
+                '<div class="history-item-file">📁 ' + escHtml(item.file || 'chatbot') + '</div>' +
+                '<div class="history-item-top">' +
+                  '<div class="history-item-instruction">' + escHtml(item.instruction || 'Full analysis') + '</div>' +
+                  '<div class="history-item-time">' + escHtml(item.time || '') + '</div>' +
+                '</div>' +
+                '<div class="history-item-response">' + escHtml(item.response || '') + '</div>';
+            body.appendChild(div);
+        });
+        const clearBtn = document.createElement('button');
+        clearBtn.className = 'history-clear-btn';
+        clearBtn.textContent = '🗑 Clear all history';
+        clearBtn.onclick = function() {
+            if (confirm('Clear all search history?')) {
+                localStorage.removeItem('ds_chat_history');
+                renderHistory();
+            }
+        };
+        body.appendChild(clearBtn);
+    }
+
+    function escHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Capture chat form submissions and save to history
+    function captureFormSubmit(form, fileInput) {
+        form.addEventListener('submit', function() {
+            const instruction = form.querySelector('input[name="instruction"], textarea[name="instruction"]');
+            const instructionVal = instruction ? instruction.value.trim() : '';
+            const fileName = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0].name : null;
+            // We store the intent; response will be captured on page load
+            const pending = {
+                instruction: instructionVal || 'Full analysis',
+                file: fileName || 'chatbot query',
+                time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+                response: 'Response loaded...'
+            };
+            const hist = getHistory();
+            hist.unshift(pending);
+            saveHistory(hist);
+        });
+    }
+
+    // On load, update latest history item with actual response if present
+    (function() {
+        const chatResponse = document.querySelector('.chat-response p');
+        const chatInstruction = document.querySelector('.chat-response strong');
+        if (chatResponse) {
+            const hist = getHistory();
+            if (hist.length > 0 && hist[0].response === 'Response loaded...') {
+                hist[0].response = chatResponse.textContent.trim();
+                if (chatInstruction) hist[0].instruction = chatInstruction.textContent.trim();
+                saveHistory(hist);
+            }
+        }
+    })();
+
+    // Attach to analyze form
+    const analyzeForm = document.querySelector('form[action="/analyze"]');
+    const fileInput = analyzeForm ? analyzeForm.querySelector('input[type="file"]') : null;
+    if (analyzeForm) captureFormSubmit(analyzeForm, fileInput);
+
+    // Attach to chat form
+    const chatForm = document.querySelector('form[action="/chat"]');
+    if (chatForm) captureFormSubmit(chatForm, null);
+
+    // ── Profile Modal ──
+    function openProfileModal() {
+        closeProfileDropdown();
+        // Pre-fill from localStorage or session
+        const saved = JSON.parse(localStorage.getItem('ds_profile') || '{}');
+        const nameParts = SESSION_NAME.split(' ');
+        document.getElementById('editFirstName').value = saved.firstName || nameParts[0] || '';
+        document.getElementById('editLastName').value  = saved.lastName  || nameParts.slice(1).join(' ') || '';
+        document.getElementById('editEmail').value     = SESSION_EMAIL || saved.email || '';
+        document.getElementById('editJobTitle').value  = saved.jobTitle || '';
+        document.getElementById('editOrg').value       = saved.org || '';
+        document.getElementById('editLocation').value  = saved.location || '';
+        document.getElementById('modalSaveMsg').style.display = 'none';
+        document.getElementById('profileModal').classList.add('open');
+    }
+    function closeProfileModal() {
+        document.getElementById('profileModal').classList.remove('open');
+    }
+    function handleModalClick(e) {
+        if (e.target === document.getElementById('profileModal')) closeProfileModal();
+    }
+    function saveProfile() {
+        const firstName = document.getElementById('editFirstName').value.trim();
+        const lastName  = document.getElementById('editLastName').value.trim();
+        const fullName  = [firstName, lastName].filter(Boolean).join(' ') || SESSION_NAME;
+        const data = {
+            firstName, lastName,
+            email: SESSION_EMAIL,
+            jobTitle:  document.getElementById('editJobTitle').value.trim(),
+            org:       document.getElementById('editOrg').value.trim(),
+            location:  document.getElementById('editLocation').value.trim()
+        };
+        localStorage.setItem('ds_profile', JSON.stringify(data));
+        // Update UI
+        document.getElementById('modalFullName').textContent  = fullName;
+        document.getElementById('modalAvatar').textContent    = fullName[0] ? fullName[0].toUpperCase() : 'U';
+        document.getElementById('ddName').textContent         = fullName;
+        document.getElementById('ddEmail').textContent        = SESSION_EMAIL;
+        document.querySelector('.nav-avatar').textContent     = fullName[0] ? fullName[0].toUpperCase() : 'U';
+        const msg = document.getElementById('modalSaveMsg');
+        msg.style.display = 'flex';
+        setTimeout(() => { msg.style.display = 'none'; }, 2500);
+    }
+
+    // Init: populate email display in dropdown from session
+    (function() {
+        const ddEmail = document.getElementById('ddEmail');
+        if (ddEmail && SESSION_EMAIL) ddEmail.textContent = SESSION_EMAIL;
+    })();
+    </script>
+</body>
+</html>

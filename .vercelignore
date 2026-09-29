@@ -1,0 +1,6 @@
+ui/
+run.py
+start.bat
+requirements-desktop.txt
+SPEC.md
+*.zip
